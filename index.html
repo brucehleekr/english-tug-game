@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story Tug of War: Voca Master</title>
+  <style>
+    :root {
+      --ink:#172033; --blue:#2563eb; --blue-soft:#eff6ff; --green:#059669; --red:#ef4444;
+      --yellow:#facc15; --paper:#fff; --line:#cbd5e1; --muted:#64748b;
+      --shadow:0 14px 34px rgba(23,32,51,.16);
+    }
+    *{box-sizing:border-box}
+    body{margin:0; min-width:320px; min-height:100vh; color:var(--ink); font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif; background:#dce8f8; user-select:none}
+    button,input,textarea{font:inherit} button{cursor:pointer}
+    #app{min-height:100vh; display:grid; grid-template-rows:auto minmax(210px,1fr) auto; gap:16px; padding:20px clamp(14px,3vw,42px) 18px; overflow:hidden; background:linear-gradient(180deg,#98c6ff 0%,#d9ecff 43%,#e5e7eb 100%)}
+    .topbar{position:relative;text-align:center}.brand{margin:8px 0 14px;font-size:clamp(1.25rem,3vw,1.9rem);font-weight:1000;font-style:italic;letter-spacing:-.04em}.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;color:#fff;background:var(--ink);font-size:.78rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.exit{position:absolute;left:0;top:0;display:none;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.82);color:#475569;font-size:.88rem;font-weight:900}
+    .scoreboard{width:min(470px,100%);margin:0 auto;padding:14px 30px;display:flex;align-items:center;justify-content:center;gap:clamp(22px,6vw,52px);background:rgba(255,255,255,.96);border-radius:24px;box-shadow:var(--shadow)}.scorebox{display:grid;gap:3px;place-items:center}.score-label{color:var(--muted);font-size:.78rem;font-weight:900;letter-spacing:.04em}.score{font-size:clamp(2.3rem,6vw,3.1rem);line-height:1;font-weight:1000}.player-score{color:var(--blue)}.ai-score{color:var(--green)}.score-divider{color:#cbd5e1;font-size:2rem;font-weight:1000}
+    .arena{position:relative;min-height:230px;display:grid;place-items:center}.lose-line{position:absolute;left:39%;top:50%;width:8px;height:150px;transform:translateY(-50%);border-radius:99px;background:var(--red);box-shadow:0 0 16px rgba(239,68,68,.35)}.lose-line span{position:absolute;left:50%;top:-27px;transform:translateX(-50%);white-space:nowrap;color:#dc2626;font-size:.74rem;font-weight:1000}.world{position:relative;width:min(760px,92vw);height:130px;transition:transform .12s linear}.rope{position:absolute;left:4%;right:4%;top:63px;height:13px;border-radius:10px;background:repeating-linear-gradient(45deg,#78350f 0,#78350f 10px,#a16207 10px,#a16207 20px);box-shadow:0 4px 5px rgba(0,0,0,.16)}.ribbon{position:absolute;left:50%;top:-17px;width:13px;height:48px;transform:translateX(-50%);border-radius:2px;background:var(--yellow);box-shadow:0 2px 2px rgba(0,0,0,.13)}.team{position:absolute;inset:0}.character{position:absolute;bottom:0;width:62px;height:102px;transform-origin:50% 100%}.character::before{content:"";position:absolute;left:14px;top:0;width:34px;height:34px;border-radius:50%;background:#ffdbac;border:2px solid rgba(0,0,0,.06)}.character::after{content:"";position:absolute;left:8px;bottom:0;width:47px;height:65px;border-radius:10px 10px 6px 6px;box-shadow:0 5px 7px rgba(0,0,0,.14)}.player .character::after{background:var(--blue)}.enemy .character::after{background:var(--green)}.player .c1{left:20%}.player .c2{left:10%;opacity:.9}.player .c3{left:0;opacity:.78}.enemy .c1{right:20%}.enemy .c2{right:10%;opacity:.9}.enemy .c3{right:0;opacity:.78}.pull{animation:tug .28s ease-out}@keyframes tug{0%,100%{transform:translateX(0) scale(1)}50%{transform:translateX(-18px) scale(1.08)}}
+    .game-panel{display:grid;justify-items:center;gap:10px}.target-word{min-width:min(500px,88vw);padding:13px 32px;border-radius:23px;background:var(--paper);box-shadow:var(--shadow);text-align:center;font-size:clamp(2rem,5vw,3.5rem);font-weight:1000;letter-spacing:-.04em}.input-row{display:flex;align-items:center;justify-content:center;gap:10px;width:min(620px,100%)}.answer-input{width:min(520px,calc(100vw - 100px));padding:13px 24px;border:5px solid #3b82f6;border-radius:999px;outline:0;background:#fff;text-align:center;font-size:clamp(1.15rem,3vw,1.75rem);font-weight:800;box-shadow:0 9px 20px rgba(37,99,235,.25);transition:border-color .18s,transform .18s}.answer-input:focus{border-color:#1d4ed8;transform:translateY(-1px)}.hint-btn{width:57px;height:57px;flex:0 0 57px;border:0;border-radius:50%;background:var(--yellow);box-shadow:0 4px 0 #ca8a04;font-size:1.35rem}.hint-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #ca8a04}.hint{min-height:42px;width:min(650px,91vw);color:var(--red);text-align:center;white-space:pre-wrap;font-size:1rem;font-weight:900;line-height:1.45}.progress-wrap{width:min(570px,88vw);height:12px;overflow:hidden;border-radius:999px;background:#cbd5e1}.progress{width:0;height:100%;background:#3b82f6;transition:width .25s ease}.remaining{margin:0;color:#334155;font-weight:900}.enter-guide{margin:-4px 0 0;color:#475569;font-size:.78rem;font-weight:800}.key{display:inline-block;padding:1px 6px;border:1px solid #94a3b8;border-radius:5px;background:#fff;box-shadow:0 1px 0 #94a3b8;font-size:.72rem}.shake{animation:shake .38s ease-in-out}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}50%{transform:translateX(10px)}75%{transform:translateX(-8px)}}
+    .overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:24px 14px;overflow-y:auto;background:rgba(10,19,34,.78)}.card{width:min(720px,100%);margin:auto;padding:clamp(22px,4vw,34px);border-radius:28px;background:var(--paper);box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}.card h2{margin:0 0 14px;font-size:clamp(1.65rem,4vw,2.1rem);font-weight:1000;letter-spacing:-.04em}.subtext{margin:0 0 8px;color:var(--muted);font-size:.78rem;font-weight:900}.speed-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}.speed{padding:8px 16px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;color:#64748b;font-size:.86rem;font-weight:900}.speed.active{border-color:#3b82f6;background:var(--blue-soft);color:var(--blue)}.level-list{display:grid;gap:7px;padding-top:18px;border-top:1px solid #e2e8f0}.level{padding:13px 16px;border:0;border-radius:15px;font-size:1rem;font-weight:1000;transition:transform .15s,filter .15s}.level:hover{transform:translateY(-2px);filter:brightness(.98)}.level[data-level="1"]{background:#dcfce7;color:#166534}.level[data-level="2"]{background:#fef9c3;color:#854d0e}.level[data-level="3"]{background:#ffedd5;color:#9a3412}.level[data-level="4"]{background:#fee2e2;color:#991b1b}.level[data-level="5"]{background:#f87171;color:#fff}
+    .story-area,.custom-area{margin-top:16px;padding:15px;border:2px dashed #cbd5e1;border-radius:18px;background:#f8fafc;text-align:left}.story-area h3{margin:0 0 6px;color:#1e3a8a;font-size:1.05rem;font-weight:1000}.story-area label,.custom-area label{display:block;margin-bottom:7px;color:#334155;font-size:.85rem;font-weight:1000}.story-area textarea,.custom-area textarea{width:100%;min-height:118px;resize:vertical;padding:11px;border:1px solid #cbd5e1;border-radius:12px;outline:none;color:#334155;background:#fff;line-height:1.55}.custom-area textarea{min-height:84px}.helper{margin:7px 0 0;color:#64748b;font-size:.74rem;font-weight:700;line-height:1.45}.story-status{min-height:20px;margin:9px 0 0;color:#1d4ed8;font-size:.82rem;font-weight:900;line-height:1.4}.story-status.warn{color:#b45309}.story-status.error{color:#dc2626}.story-panel{margin-top:12px;padding:12px;border:1px solid #bfdbfe;border-radius:14px;background:#fff}.story-summary{margin:0 0 9px;color:#1e3a8a;font-size:.82rem;font-weight:900}.word-editor{max-height:248px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px}.word-row{display:grid;grid-template-columns:minmax(90px,.8fr) minmax(140px,1.45fr);gap:8px;align-items:center;padding:8px 9px;border-bottom:1px solid #f1f5f9}.word-row:last-child{border-bottom:0}.word-label{overflow-wrap:anywhere;color:#0f172a;font-weight:1000}.meaning-input{width:100%;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;outline:0;color:#334155;background:#fff;font-size:.88rem;font-weight:700}.meaning-input:focus{border-color:#3b82f6;box-shadow:0 0 0 2px #dbeafe}.meaning-input.missing{border-color:#f59e0b;background:#fffbeb}.primary,.secondary,.danger{width:100%;margin-top:10px;padding:14px 18px;border:0;border-radius:15px;font-size:1rem;font-weight:1000}.primary{background:var(--blue);color:#fff;box-shadow:0 4px 0 #1d4ed8}.primary:disabled{cursor:wait;opacity:.65;box-shadow:none}.secondary{background:#475569;color:#fff;box-shadow:0 4px 0 #1e293b}.danger{background:#fee2e2;color:#b91c1c}.hidden{display:none!important}.divider{height:1px;margin:16px 0;border:0;background:#e2e8f0}.details{margin-top:13px;padding-top:12px;border-top:1px solid #e2e8f0}.details summary{cursor:pointer;color:#475569;font-size:.88rem;font-weight:1000}
+    @media(max-width:560px){#app{padding:15px 11px 14px;gap:11px}.brand{margin:10px 42px 12px;font-size:1.1rem}.scoreboard{padding:12px 22px}.arena{min-height:175px}.lose-line{height:115px;left:35%}.world{transform:scale(.83)}.target-word{padding:10px 18px}.answer-input{padding:12px 13px}.hint-btn{width:51px;height:51px;flex-basis:51px}.word-row{grid-template-columns:1fr;gap:4px}.word-editor{max-height:220px}}
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="Story Tug of War Voca Master">
+    <header class="topbar">
+      <button id="exitBtn" class="exit" type="button">나가기</button>
+      <div id="modeBadge" class="badge">NORMAL MODE</div>
+      <h1 class="brand">TUG OF WAR: STORY VOCA</h1>
+      <div class="scoreboard" aria-label="매치 점수">
+        <div class="scorebox"><span class="score-label">PLAYER</span><span id="playerScore" class="score player-score">0</span></div>
+        <div class="score-divider">:</div>
+        <div class="scorebox"><span class="score-label">AI</span><span id="aiScore" class="score ai-score">0</span></div>
+      </div>
+    </header>
+
+    <section class="arena" aria-label="줄다리기 경기장">
+      <div class="lose-line"><span>LOSE LINE</span></div>
+      <div id="world" class="world">
+        <div class="rope"><span class="ribbon"></span></div>
+        <div class="team player"><i class="character c1"></i><i class="character c2"></i><i class="character c3"></i></div>
+        <div class="team enemy"><i class="character c1"></i><i class="character c2"></i><i class="character c3"></i></div>
+      </div>
+    </section>
+
+    <section class="game-panel" aria-label="단어 입력 영역">
+      <div id="targetWord" class="target-word">READY</div>
+      <div class="input-row">
+        <input id="answerInput" class="answer-input" type="text" autocomplete="off" placeholder="한국어 뜻을 입력하세요" aria-label="한국어 뜻 입력" />
+        <button id="hintBtn" class="hint-btn" type="button" aria-label="힌트 또는 정답 보기">💡</button>
+      </div>
+      <div id="hintText" class="hint" aria-live="polite"></div>
+      <p class="enter-guide"><span class="key">Enter</span> 빈칸 1회: 힌트 · 2회: 정답 보기</p>
+      <div class="progress-wrap" aria-label="진도"><div id="progressBar" class="progress"></div></div>
+      <p class="remaining">남은 단어: <span id="remainingCount">0</span> / <span id="totalCount">0</span>개</p>
+    </section>
+  </main>
+
+  <div id="overlay" class="overlay">
+    <section class="card" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+      <h2 id="menuTitle">줄다리기 단어 퀴즈</h2>
+      <p class="subtext">줄이 당겨지는 속도 조절</p>
+      <div class="speed-row" role="group" aria-label="게임 속도">
+        <button class="speed" data-speed="0.5" type="button">🐢 느림</button>
+        <button class="speed active" data-speed="1" type="button">🏃 보통</button>
+        <button class="speed" data-speed="1.5" type="button">⚡ 빠름</button>
+      </div>
+
+      <div id="menuBody">
+        <section class="story-area" aria-label="영어 스토리 단어 만들기">
+          <h3>📖 영어 스토리 단어 줄다리기</h3>
+          <label for="storyInput">영어 스토리를 붙여넣으세요</label>
+          <textarea id="storyInput" placeholder="예: A boy found a red apple in the garden. He gave the apple to his friend."></textarea>
+          <p class="helper">스토리의 영어 단어를 중복 없이 순서대로 뽑아 한글 뜻을 붙입니다. 자동 뜻은 수정할 수 있습니다.</p>
+          <button id="analyzeStoryBtn" class="primary" type="button">스토리 단어 뜻 붙이기</button>
+          <p id="storyStatus" class="story-status" aria-live="polite"></p>
+          <div id="storyPanel" class="story-panel hidden">
+            <p id="storySummary" class="story-summary"></p>
+            <div id="wordEditor" class="word-editor" aria-label="스토리 단어 뜻 편집"></div>
+            <p class="helper">노란 칸은 자동 뜻을 찾지 못한 단어입니다. 뜻을 입력한 뒤 게임을 시작하세요.</p>
+            <button id="startStoryBtn" class="primary" type="button">스토리 단어로 게임 시작</button>
+          </div>
+        </section>
+
+        <div class="level-list">
+          <button class="level" data-level="1" type="button">Level 1 · Beginner</button>
+          <button class="level" data-level="2" type="button">Level 2 · Normal</button>
+          <button class="level" data-level="3" type="button">Level 3 · Hard</button>
+          <button class="level" data-level="4" type="button">Level 4 · Pro</button>
+          <button class="level" data-level="5" type="button">Level 5 · Hacker</button>
+        </div>
+
+        <details class="details">
+          <summary>직접 단어장 입력으로 시작하기</summary>
+          <div class="custom-area">
+            <label for="customInput">내 단어장 불러오기</label>
+            <textarea id="customInput" placeholder="apple | 사과&#10;achieve | 달성하다, 이루다"></textarea>
+            <p class="helper">한 줄에 한 단어를 입력하세요. 구분 기호는 <strong>|</strong>, <strong>:</strong>, <strong>탭</strong>, <strong>,</strong> 중 하나를 사용할 수 있습니다.</p>
+            <button id="customStartBtn" class="primary" type="button">내 단어장으로 시작</button>
+          </div>
+        </details>
+      </div>
+
+      <div id="resultBody" class="hidden">
+        <p id="resultText" class="helper" style="font-size:1rem;margin:0 0 12px;"></p>
+        <button id="retestBtn" class="primary" type="button">틀린 단어 재시험</button>
+        <button id="menuBtn" class="secondary" type="button">메뉴로 돌아가기</button>
+      </div>
+      <button id="resetBtn" class="danger" type="button">전체 점수 초기화</button>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const levels = {
+        1:[['Apple','사과'],['Cat','고양이'],['Book','책'],['Desk','책상'],['Dog','개'],['Milk','우유'],['Tree','나무'],['Fish','물고기'],['Water','물'],['Bird','새'],['Car','자동차'],['Sun','태양'],['Moon','달'],['Star','별'],['Hand','손'],['Foot','발'],['Head','머리'],['Door','문'],['Window','창문'],['Bread','빵']],
+        2:[['Blue','파란색'],['Red','빨간색'],['Small','작은'],['Big','큰'],['Happy','행복한'],['Sad','슬픈'],['Run','달리다'],['Jump','점프하다, 뛰다'],['Sleep','자다'],['House','집'],['School','학교'],['Chair','의자'],['Table','탁자'],['Pencil','연필'],['Paper','종이'],['Fast','빠른'],['Slow','느린'],['Cold','추운'],['Hot','더운'],['Friend','친구']],
+        3:[['Forest','숲'],['Desert','사막'],['Ocean','바다'],['Island','섬'],['River','강'],['Bridge','다리'],['Nature','자연'],['Animal','동물'],['Flower','꽃'],['Garden','정원'],['Bottle','병'],['Clock','시계'],['Mirror','거울'],['Shadow','그림자'],['Light','빛'],['Sound','소리'],['Secret','비밀'],['Danger','위험'],['Energy','에너지'],['Journey','여정']],
+        4:[['Success','성공'],['Challenge','도전'],['Balance','균형'],['Respect','존중'],['Freedom','자유'],['History','역사'],['Culture','문화'],['Science','과학'],['Health','건강'],['Future','미래'],['Theory','이론'],['Method','방법'],['System','체계'],['Impact','영향'],['Factor','요인'],['Result','결과'],['Process','과정'],['Source','근원, 출처'],['Detail','세부 사항'],['Option','선택']],
+        5:[['Accurate','정확한'],['Efficient','효율적인'],['Logical','논리적인'],['Abstract','추상적인'],['Concrete','구체적인'],['Complex','복잡한'],['Simple','단순한'],['Paradox','역설'],['Metaphor','은유'],['Symbol','상징'],['Insight','통찰'],['Wisdom','지혜'],['Courage','용기'],['Patience','인내'],['Destiny','운명'],['Eternal','영원한'],['Fragile','취약한'],['Intense','강렬한'],['Subtle','미묘한'],['Unique','독특한']]
+      };
+      const difficulty={1:{base:.035,growth:.000006,label:'Beginner'},2:{base:.065,growth:.000014,label:'Normal'},3:{base:.115,growth:.00003,label:'Hard'},4:{base:.19,growth:.00007,label:'Pro'},5:{base:.28,growth:.00012,label:'Hacker'},custom:{base:.075,growth:.000018,label:'My Voca'},story:{base:.07,growth:.000016,label:'Story'}};
+
+      // 자주 나오는 스토리 단어는 즉시 뜻을 붙입니다. 나머지는 브라우저의 온라인 번역을 시도하며, 실패한 칸은 직접 수정할 수 있습니다.
+      const localDictionary=Object.freeze({
+        'a':'하나의, 어떤','an':'하나의, 어떤','the':'그, 그곳의','and':'그리고','or':'또는','but':'하지만','so':'그래서','because':'왜냐하면','if':'만약','then':'그러면','than':'보다','as':'~처럼, ~로서','of':'~의','to':'~에게, ~로','in':'~안에','on':'~위에','at':'~에서','for':'~을 위해','from':'~로부터','with':'~와 함께','by':'~에 의해, ~옆에','about':'~에 대하여','into':'~안으로','over':'~위로','under':'~아래에','after':'~후에','before':'~전에','between':'~사이에','through':'~을 통하여','around':'~주위에','near':'~근처에','behind':'~뒤에','during':'~동안','without':'~없이','up':'위로','down':'아래로','out':'밖으로','again':'다시','very':'매우','not':'아니다, ~않다','no':'아니오, 없다','yes':'네','all':'모든','some':'몇몇의, 약간의','any':'어떤, 아무','many':'많은','much':'많은','more':'더 많은','most':'가장 많은','one':'하나','two':'둘','three':'셋','first':'첫 번째','last':'마지막의','this':'이것','that':'저것, 그것','these':'이것들','those':'저것들','it':'그것','its':'그것의','he':'그','she':'그녀','they':'그들','them':'그들을, 그들에게','we':'우리','you':'너, 당신','i':'나','my':'나의','your':'너의, 당신의','his':'그의','her':'그녀의','their':'그들의','our':'우리의','who':'누구','what':'무엇','when':'언제','where':'어디','why':'왜','how':'어떻게','is':'~이다','are':'~이다, 있다','was':'~이었다','were':'~이었다','be':'~이다','been':'~인, 있었다','being':'~인','have':'가지다','has':'가지고 있다','had':'가졌다','do':'하다','does':'한다','did':'했다','can':'할 수 있다','could':'할 수 있었다','will':'~할 것이다','would':'~할 것이다','should':'~해야 한다','may':'~일지도 모른다','might':'~일지도 모른다','must':'반드시 ~해야 한다','let':'~하게 하다','go':'가다','goes':'간다','went':'갔다','come':'오다','came':'왔다','see':'보다','saw':'보았다','look':'보다','looked':'보았다','watch':'보다','watched':'보았다','find':'찾다','found':'찾았다','give':'주다','gave':'주었다','take':'가져가다','took':'가져갔다','get':'얻다','got':'얻었다','make':'만들다','made':'만들었다','say':'말하다','said':'말했다','tell':'말하다','told':'말했다','ask':'묻다','asked':'물었다','know':'알다','knew':'알았다','think':'생각하다','thought':'생각했다','want':'원하다','wanted':'원했다','need':'필요로 하다','needed':'필요로 했다','like':'좋아하다','liked':'좋아했다','love':'사랑하다','loved':'사랑했다','help':'돕다','helped':'도왔다','try':'시도하다','tried':'시도했다','work':'일하다','worked':'일했다','play':'놀다','played':'놀았다','walk':'걷다','walked':'걸었다','run':'달리다','ran':'달렸다','jump':'뛰다','jumped':'뛰었다','eat':'먹다','ate':'먹었다','drink':'마시다','drank':'마셨다','sleep':'자다','slept':'잤다','wake':'깨다','woke':'깼다','live':'살다','lived':'살았다','stay':'머무르다','stayed':'머물렀다','read':'읽다','write':'쓰다','wrote':'썼다','speak':'말하다','spoke':'말했다','hear':'듣다','heard':'들었다','listen':'듣다','listened':'들었다','meet':'만나다','met':'만났다','call':'부르다, 전화하다','called':'불렀다, 전화했다','open':'열다','opened':'열었다','close':'닫다','closed':'닫았다','put':'놓다','bring':'가져오다','brought':'가져왔다','leave':'떠나다','left':'떠났다','begin':'시작하다','began':'시작했다','start':'시작하다','started':'시작했다','stop':'멈추다','stopped':'멈췄다','become':'~이 되다','became':'~이 되었다','feel':'느끼다','felt':'느꼈다','smile':'미소 짓다','smiled':'미소 지었다','laugh':'웃다','laughed':'웃었다','cry':'울다','cried':'울었다','happy':'행복한','sad':'슬픈','angry':'화난','afraid':'무서워하는','tired':'피곤한','kind':'친절한','brave':'용감한','good':'좋은','bad':'나쁜','big':'큰','small':'작은','little':'작은, 어린','young':'어린','old':'늙은, 오래된','new':'새로운','beautiful':'아름다운','bright':'밝은','dark':'어두운','red':'빨간','blue':'파란','green':'초록색의','yellow':'노란','black':'검은','white':'하얀','warm':'따뜻한','cold':'추운','hot':'더운','fast':'빠른','slow':'느린','day':'날, 낮','night':'밤','morning':'아침','afternoon':'오후','evening':'저녁','time':'시간','today':'오늘','tomorrow':'내일','yesterday':'어제','boy':'소년, 남자아이','girl':'소녀, 여자아이','child':'아이','children':'아이들','man':'남자','woman':'여자','mother':'어머니','father':'아버지','family':'가족','friend':'친구','people':'사람들','person':'사람','teacher':'선생님','student':'학생','king':'왕','queen':'여왕','prince':'왕자','princess':'공주','dog':'개','cat':'고양이','bird':'새','fish':'물고기','horse':'말','rabbit':'토끼','fox':'여우','bear':'곰','lion':'사자','mouse':'쥐','animal':'동물','apple':'사과','bread':'빵','milk':'우유','water':'물','food':'음식','cake':'케이크','fruit':'과일','flower':'꽃','tree':'나무','forest':'숲','garden':'정원','river':'강','sea':'바다','ocean':'바다','mountain':'산','house':'집','home':'집','school':'학교','room':'방','door':'문','window':'창문','road':'길','city':'도시','village':'마을','park':'공원','book':'책','story':'이야기','letter':'편지','picture':'그림','song':'노래','game':'게임','ball':'공','sun':'태양','moon':'달','star':'별','sky':'하늘','rain':'비','snow':'눈','wind':'바람','fire':'불','light':'빛','shadow':'그림자','magic':'마법','secret':'비밀','treasure':'보물','gift':'선물','dream':'꿈','voice':'목소리','hand':'손','head':'머리','eye':'눈','heart':'심장, 마음','name':'이름','world':'세상','way':'길, 방법','place':'장소','thing':'것','something':'무언가','nothing':'아무것도 없음','everyone':'모두','someone':'누군가','away':'멀리','here':'여기에','there':'거기에','once':'한 번','upon':'~위에','every':'모든','each':'각각의','another':'또 다른','only':'오직','also':'또한','just':'단지','still':'여전히','soon':'곧','always':'항상','never':'절대로 ~않다','often':'자주','sometimes':'가끔','together':'함께','back':'뒤로, 다시','homeward':'집으로',"don't":'~하지 않다',"didn't":'~하지 않았다',"isn't":'~이 아니다',"wasn't":'~이 아니었다',"can't":'할 수 없다',"won't":'~하지 않을 것이다'
+      });
+
+      const el={overlay:document.querySelector('#overlay'),world:document.querySelector('#world'),target:document.querySelector('#targetWord'),input:document.querySelector('#answerInput'),hint:document.querySelector('#hintText'),hintBtn:document.querySelector('#hintBtn'),progress:document.querySelector('#progressBar'),remaining:document.querySelector('#remainingCount'),total:document.querySelector('#totalCount'),playerScore:document.querySelector('#playerScore'),aiScore:document.querySelector('#aiScore'),badge:document.querySelector('#modeBadge'),exit:document.querySelector('#exitBtn'),title:document.querySelector('#menuTitle'),menuBody:document.querySelector('#menuBody'),resultBody:document.querySelector('#resultBody'),resultText:document.querySelector('#resultText'),retest:document.querySelector('#retestBtn'),menu:document.querySelector('#menuBtn'),reset:document.querySelector('#resetBtn'),customInput:document.querySelector('#customInput'),customStart:document.querySelector('#customStartBtn'),storyInput:document.querySelector('#storyInput'),analyzeStory:document.querySelector('#analyzeStoryBtn'),storyStatus:document.querySelector('#storyStatus'),storyPanel:document.querySelector('#storyPanel'),storySummary:document.querySelector('#storySummary'),wordEditor:document.querySelector('#wordEditor'),startStory:document.querySelector('#startStoryBtn')};
+      let storyEntries=[]; let storyTokenCount=0;
+      let state={playing:false,level:1,pool:[],total:0,current:null,retest:[],offset:0,power:0,growth:0,speed:1,raf:0,match:{player:0,ai:0},isReview:false,sequential:false,helpStage:0,answerRevealed:false};
+      const winLimit=130;
+
+      function normalize(value){return String(value||'').replace(/\s*\([^)]*\)\s*/g,' ').replace(/[~·]/g,'').replace(/\s+/g,' ').trim();}
+      function compact(value){return normalize(value).replace(/\s/g,'');}
+      function choices(meaning){return String(meaning||'').split(/[,;/]/).map(normalize).filter(Boolean);}
+      function firstMeaning(meaning){return choices(meaning)[0]||String(meaning||'');}
+      function answerIsCorrect(input,meaning){const typed=normalize(input);return choices(meaning).some(answer=>typed===answer||compact(typed)===compact(answer))||typed===normalize(meaning);}
+      function randomItem(arr){return arr[Math.floor(Math.random()*arr.length)];}
+      function speak(word){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(word);u.lang='en-US';u.rate=.84;window.speechSynthesis.speak(u);}
+      function updateUI(){const done=state.total-state.pool.length;el.remaining.textContent=state.pool.length;el.total.textContent=state.total;el.progress.style.width=state.total?`${Math.max(0,done/state.total*100)}%`:'0%';el.playerScore.textContent=state.match.player;el.aiScore.textContent=state.match.ai;}
+      function resetRoundMotion(){state.offset=0;el.world.style.transform='translateX(0)';}
+      function setNext(){state.helpStage=0;state.answerRevealed=false;el.hint.textContent='';el.input.value='';el.input.placeholder='한국어 뜻을 입력하세요';state.current=state.pool.length?(state.sequential?state.pool[0]:randomItem(state.pool)):null;if(!state.current)return;el.target.textContent=state.current.word;speak(state.current.word);}
+      function pullTick(){if(!state.playing)return;state.offset+=state.power*state.speed;state.power+=state.growth*state.speed;el.world.style.transform=`translateX(${-state.offset}px)`;if(state.offset>winLimit){endGame(false);return;}state.raf=requestAnimationFrame(pullTick);}
+      function startRound(level,entries,review=false){const cfg=difficulty[level];state.level=level;state.pool=entries.map(([word,meaning])=>({word:String(word),meaning:String(meaning)}));state.total=state.pool.length;state.retest=[];state.isReview=review;state.sequential=level==='story'||review;state.playing=true;state.power=cfg.base;state.growth=cfg.growth;resetRoundMotion();el.badge.textContent=review?'REVIEW MODE':`${cfg.label.toUpperCase()} MODE`;el.badge.style.background=review?'var(--red)':'var(--ink)';el.overlay.classList.add('hidden');el.exit.style.display='inline-flex';setNext();updateUI();cancelAnimationFrame(state.raf);state.raf=requestAnimationFrame(pullTick);setTimeout(()=>el.input.focus(),60);}
+      function finishWord(){const i=state.pool.indexOf(state.current);if(i>=0)state.pool.splice(i,1);resetRoundMotion();updateUI();document.querySelectorAll('.player .character').forEach(x=>{x.classList.remove('pull');void x.offsetWidth;x.classList.add('pull');});if(!state.pool.length)endGame(true);else setNext();}
+      function requestHelp(){if(!state.current)return;const answer=firstMeaning(state.current.meaning);if(state.helpStage===0){state.helpStage=1;const sample=answer.length>1?`${answer.slice(0,1)}…`:answer;el.hint.style.color='#475569';el.hint.textContent=`💡 힌트: 뜻은 '${sample}'로 시작합니다.`;}else{state.helpStage=2;state.answerRevealed=true;el.hint.style.color='var(--red)';el.hint.textContent=`✅ 정답: ${answer}\n정답을 직접 입력하면 다음 단어로 넘어갑니다.`;el.input.placeholder='위 정답을 입력하세요';}}
+      function showWrong(){el.hint.style.color='var(--red)';el.hint.textContent='❌ 다시 생각해 보세요. 빈칸으로 Enter를 누르면 1회는 힌트, 2회는 정답이 나옵니다.';el.input.classList.remove('shake');void el.input.offsetWidth;el.input.classList.add('shake');}
+      function submitAnswer(){if(!state.playing||!state.current)return;const typed=normalize(el.input.value);if(!typed){requestHelp();return;}if(!answerIsCorrect(typed,state.current.meaning)){showWrong();el.input.value='';return;}if(state.answerRevealed&&!state.retest.some(x=>x.word===state.current.word&&x.meaning===state.current.meaning))state.retest.push(state.current);finishWord();}
+      function endGame(won){state.playing=false;cancelAnimationFrame(state.raf);window.speechSynthesis?.cancel();el.exit.style.display='none';state.match[won?'player':'ai']+=1;updateUI();el.overlay.classList.remove('hidden');el.menuBody.classList.add('hidden');el.resultBody.classList.remove('hidden');el.title.textContent=won?'ROUND FINISHED! 🎉':'DEFEAT... 💀';if(won){el.resultText.textContent=state.retest.length?`총 ${state.total}개를 완료했습니다. 정답을 공개한 단어 ${state.retest.length}개를 재시험해 보세요.`:'완벽합니다! 모든 단어를 정답 공개 없이 맞혔습니다.';el.retest.textContent='공개한 단어 재시험';el.retest.classList.toggle('hidden',!state.retest.length);}else{const remaining=[...state.pool,...state.retest];state.retest=remaining;el.resultText.textContent=`AI가 이겼습니다. 남은 단어 ${remaining.length}개를 다시 도전해 보세요.`;el.retest.textContent='남은 단어 재도전';el.retest.classList.remove('hidden');}}
+      function showMenu(){state.playing=false;cancelAnimationFrame(state.raf);window.speechSynthesis?.cancel();el.overlay.classList.remove('hidden');el.exit.style.display='none';el.menuBody.classList.remove('hidden');el.resultBody.classList.add('hidden');el.title.textContent='줄다리기 단어 퀴즈';}
+      function parseCustom(raw){const parsed=[];const seen=new Set();raw.split(/\r?\n/).forEach(line=>{const clean=line.trim().replace(/^\d+[.)]\s*/,'');if(!clean)return;const bits=clean.split(/\s*(?:\||:|\t|,| - )\s*/);const word=(bits.shift()||'').trim();const meaning=bits.join(', ').trim();if(!word||!meaning||!/[A-Za-z]/.test(word))return;const key=word.toLowerCase();if(seen.has(key))return;seen.add(key);parsed.push([word,meaning]);});return parsed;}
+      function storyTokens(raw){return raw.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*/g)||[];}
+      function keyOf(word){return String(word||'').toLowerCase().replace(/’/g,"'");}
+      function storageKey(word){return `story-voca-ko:${keyOf(word)}`;}
+      function getLocalMeaning(word){const key=keyOf(word);if(localDictionary[key])return localDictionary[key];const withoutPossessive=key.replace(/'s$/,'');if(withoutPossessive!==key&&localDictionary[withoutPossessive])return localDictionary[withoutPossessive];const singular=key.endsWith('s')?key.slice(0,-1):key;if(localDictionary[singular])return localDictionary[singular];return '';}
+      function setStoryStatus(text,type=''){el.storyStatus.textContent=text;el.storyStatus.className=`story-status ${type}`.trim();}
+      function renderStoryEditor(){el.storyPanel.classList.remove('hidden');el.storySummary.textContent=`스토리 전체 ${storyTokenCount}개 단어 · 중복 제외 ${storyEntries.length}개 단어입니다. 스토리 순서대로 시험합니다.`;el.wordEditor.replaceChildren();storyEntries.forEach((entry,index)=>{const row=document.createElement('div');row.className='word-row';const label=document.createElement('div');label.className='word-label';label.textContent=entry.word;const input=document.createElement('input');input.type='text';input.className=`meaning-input${entry.meaning?'':' missing'}`;input.value=entry.meaning;input.placeholder='한글 뜻을 입력하세요';input.dataset.storyIndex=String(index);input.addEventListener('input',()=>{entry.meaning=input.value.trim();input.classList.toggle('missing',!entry.meaning);});row.append(label,input);el.wordEditor.append(row);});el.startStory.textContent=`스토리 단어 ${storyEntries.length}개로 게임 시작`;}
+      function translateGooglePayload(data){try{const translated=data?.[0]?.map(part=>part?.[0]||'').join('').trim();return /[가-힣]/.test(translated)?translated:'';}catch{return '';}}
+      function readCachedMeaning(word){try{return localStorage.getItem(storageKey(word))||'';}catch(_){return '';}}
+      function saveCachedMeaning(word,meaning){try{localStorage.setItem(storageKey(word),meaning);}catch(_){/* 저장소를 쓸 수 없어도 게임은 계속 진행 */}}
+      async function fetchJson(url){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),3500);try{const response=await fetch(url,{headers:{Accept:'application/json'},signal:controller.signal});if(!response.ok)return null;return await response.json();}finally{clearTimeout(timer);}}
+      async function translateOnline(word){const cached=readCachedMeaning(word);if(cached)return cached;const query=encodeURIComponent(word);const endpoints=[{url:`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=${query}`,parse:translateGooglePayload},{url:`https://api.mymemory.translated.net/get?q=${query}&langpair=en|ko`,parse:data=>{const text=String(data?.responseData?.translatedText||'').trim();return /[가-힣]/.test(text)?text:'';}}];for(const endpoint of endpoints){try{const data=await fetchJson(endpoint.url);if(!data)continue;const meaning=endpoint.parse(data);if(meaning){saveCachedMeaning(word,meaning);return meaning;}}catch(_){/* 네트워크가 없으면 편집 가능한 빈 칸으로 남김 */}}return '';}
+      async function analyzeStory(){const raw=el.storyInput.value.trim();const tokens=storyTokens(raw);if(!tokens.length){setStoryStatus('영어 스토리를 먼저 입력해 주세요.','error');el.storyInput.focus();return;}const seen=new Set();storyTokenCount=tokens.length;storyEntries=[];tokens.forEach(token=>{const key=keyOf(token);if(seen.has(key))return;seen.add(key);storyEntries.push({word:token,meaning:getLocalMeaning(token)});});renderStoryEditor();const unresolved=storyEntries.filter(entry=>!entry.meaning);if(!unresolved.length){setStoryStatus(`${storyEntries.length}개 단어의 뜻을 준비했습니다. 필요하면 뜻을 수정한 뒤 시작하세요.`);return;}el.analyzeStory.disabled=true;setStoryStatus(`단어 뜻을 자동으로 붙이는 중… 0 / ${unresolved.length}`);let done=0;let cursor=0;const workers=Array.from({length:Math.min(5,unresolved.length)},async()=>{while(cursor<unresolved.length){const current=unresolved[cursor++];current.meaning=await translateOnline(current.word);done+=1;setStoryStatus(`단어 뜻을 자동으로 붙이는 중… ${done} / ${unresolved.length}`);renderStoryEditor();}});await Promise.all(workers);el.analyzeStory.disabled=false;const missing=storyEntries.filter(entry=>!entry.meaning).length;setStoryStatus(missing?`${storyEntries.length}개 단어를 준비했습니다. 노란 칸 ${missing}개는 뜻을 직접 입력해 주세요.`:`${storyEntries.length}개 단어의 뜻을 모두 붙였습니다. 필요하면 수정한 뒤 시작하세요.`,missing?'warn':'');}
+      function startStoryGame(){if(!storyEntries.length){setStoryStatus('먼저 스토리 단어 뜻 붙이기를 눌러 주세요.','error');return;}const missing=storyEntries.findIndex(entry=>!entry.meaning.trim());if(missing>=0){setStoryStatus('노란 칸의 한글 뜻을 모두 입력해야 게임을 시작할 수 있습니다.','error');const field=el.wordEditor.querySelector(`[data-story-index="${missing}"]`);field?.focus();return;}startRound('story',storyEntries.map(entry=>[entry.word,entry.meaning]));}
+
+      document.querySelectorAll('.level').forEach(btn=>btn.addEventListener('click',()=>startRound(Number(btn.dataset.level),levels[btn.dataset.level])));
+      document.querySelectorAll('.speed').forEach(btn=>btn.addEventListener('click',()=>{state.speed=Number(btn.dataset.speed);document.querySelectorAll('.speed').forEach(x=>x.classList.toggle('active',x===btn));}));
+      el.input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();submitAnswer();}});
+      el.hintBtn.addEventListener('click',()=>{if(state.playing)requestHelp();});el.exit.addEventListener('click',showMenu);el.menu.addEventListener('click',showMenu);
+      el.retest.addEventListener('click',()=>{if(state.retest.length)startRound(state.level,state.retest.map(x=>[x.word,x.meaning]),true);});
+      el.reset.addEventListener('click',()=>{state.match={player:0,ai:0};updateUI();el.reset.textContent='초기화되었습니다!';setTimeout(()=>el.reset.textContent='전체 점수 초기화',900);});
+      el.customStart.addEventListener('click',()=>{const entries=parseCustom(el.customInput.value);if(!entries.length){alert('단어 | 뜻 형식으로 최소 1개 이상 입력해 주세요.\n예: achieve | 달성하다');el.customInput.focus();return;}startRound('custom',entries);});
+      el.analyzeStory.addEventListener('click',analyzeStory);el.startStory.addEventListener('click',startStoryGame);
+      document.addEventListener('click',()=>{if(state.playing&&document.activeElement!==el.input)el.input.focus();});
+      window.__tugStoryTestState=()=>({playing:state.playing,current:state.current?.word||null,meaning:state.current?.meaning||null,remaining:state.pool.length,retest:state.retest.length,mode:state.level,helpStage:state.helpStage,answerRevealed:state.answerRevealed,storyEntries:storyEntries.map(entry=>({...entry}))});
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
